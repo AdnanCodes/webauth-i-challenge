@@ -3,6 +3,10 @@ const bcrypt = require("bcryptjs");
 const server = express();
 const restricted = require("./middleware/restricted-middleware");
 
+const Users = require("./users/users-model");
+
+server.use(express.json());
+
 server.get("/", (req, res) => {
   res.send("It's alive!");
 });
