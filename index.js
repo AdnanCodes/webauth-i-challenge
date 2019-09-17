@@ -1,12 +1,28 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const server = express();
+const cors = require("cors");
 const restricted = require("./middleware/restricted-middleware");
-
+const session = require("express-session");
 const Users = require("./users/users-model");
 
-server.use(express.json());
+const server = express();
 
+const sessionConfig = {
+  name: "chocochip",
+  secret: process.env.SESSION_SECRET || "keep it secret, keep it safe",
+  cookie: {
+    maxAge: 1000 * 60 * 60, // in milliseconds
+    secure: false, //true means only send cookie over https
+    httpOnly: true //True means JS has no access to the cookie
+  },
+  resave: false,
+  saveUninitialized: true // GDPR Compliance
+};
+
+server.use(session(sessionConfig));
+
+server.use(express.json());
+server.use(cors());
 server.get("/", (req, res) => {
   res.send("It's alive!");
 });
@@ -31,6 +47,7 @@ server.post("/api/login", (req, res) => {
   Users.findBy({ username })
     .first()
     .then(user => {
+      req.session.user = user;
       if (user && bcrypt.compareSync(password, user.password)) {
         res.status(200).json({ message: `Welcome ${user.username}!` });
       } else {
