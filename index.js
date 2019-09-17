@@ -67,5 +67,21 @@ server.get("/api/users", restricted, (req, res) => {
     .catch(err => res.send(err));
 });
 
+server.get("/api/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy(error => {
+      if (error) {
+        res.status(500).json({
+          message: "You can check out anytime you like, but you can never leave"
+        });
+      } else {
+        res.status(200).json({ message: "Bye come back soon" });
+      }
+    });
+  } else {
+    res.status(200).json({ messsage: "already logged out" });
+  }
+});
+
 const port = process.env.PORT || 5000;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
