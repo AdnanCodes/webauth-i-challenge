@@ -22,7 +22,15 @@ const sessionConfig = {
 server.use(session(sessionConfig));
 
 server.use(express.json());
-server.use(cors());
+server.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true
+  })
+);
 server.get("/", (req, res) => {
   res.send("It's alive!");
 });
@@ -48,6 +56,7 @@ server.post("/api/login", (req, res) => {
     .first()
     .then(user => {
       req.session.user = user;
+      console.log(req.header);
       if (user && bcrypt.compareSync(password, user.password)) {
         res.status(200).json({ message: `Welcome ${user.username}!` });
       } else {
